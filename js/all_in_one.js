@@ -1,67 +1,31 @@
-
-var page_name = 'test';
-//var page_name fullPath.replace(/^.*[\\\/]/, '');  
-var text_string_01 = 'This is a text block to simulate the random thoughts produced at the end of the day as an introduction' +
-    ' to the set of pictures likely to follow.'
-
-var text_string_02 = 'This is a second text block with a description that covers the following one or few blocks of pictures and comments'
-
-var row_data = [
-    ['picblk', [
-        [page_name, '#one', "P5200001.jpg", "pic01 comment for first picture"]
-    ]
-    ],
-    ['text', [
-        [text_string_01]
-    ]
-    ],
-    ['picblk', [
-        [page_name, '#one', "P5200019.jpg", "pic02 comment for first picture"],
-        [page_name, '#one', "P5200026.jpg", "pic02 comment for second picture"]
-    ]
-    ],
-    ['picblk', [
-        [page_name, '#one', "P5200027.jpg", "pic03 comment for first picture"],
-        [page_name, '#one', "P5200029.jpg", "pic03 comment for second picture that drags on and on and takes many lines on the page what happens?"],
-        [page_name, '#one', "P5210002.jpg", "pic03 comment for third picture"]
-    ]
-    ],
-    ['text', [
-        [text_string_02]
-    ]
-    ],
-    ['picblk', [
-        [page_name, '#one', "P5210003.jpg", "pic04 comment for first picture"],
-        [page_name, '#one', "P5210006.jpg", "pic04 comment for second picture"],
-        [page_name, '#one', "P5210010.jpg", "pic04 comment for third picture"],
-        [page_name, '#one', "P5210011a.jpg", "pic04 comment for fourth picture"]
-    ]
-    ]
-];
+/* These are routines associated with building a page of thumbnails.  There are two types of rows, a text block
+     row and a picture row.  A text block row takes up full width and just reproduces the text provided in the row_data
+     array.  A picture block builds a table with a picture and caption.  Picture blocks are either 1, 2, 3 or 4
+     pictures wide, dependent only on the size of the array.  This code determines how wide the block will be
+     and inserts the appropriate table and div's to accomodate that many entries.
+ */
 
 // this script adds the three indicies on the end of the row_data arrays (big index, little index, length)
-for (var big = 0; big < row_data.length; big++) {
-    if (row_data[big][0] != 'text') {
-        for (var small = 0; small < row_data[big][1].length; small++) {
-            var add_on = [
-                [big, small, row_data[big][1].length]
-            ];
-            row_data[big][1][small] = row_data[big][1][small].concat(add_on);
+function update_row_data(row_data) {
+    for (var big = 0; big < row_data.length; big++) {
+        if (row_data[big][0] != 'text') {
+            for (var small = 0; small < row_data[big][1].length; small++) {
+                var add_on = [
+                    [big, small, row_data[big][1].length]
+                ];
+                row_data[big][1][small] = row_data[big][1][small].concat(add_on);
+            }
         }
     }
 }
 
-// hold off on this stuff and see if I really need it.  May not need to be asynchronous.
+// turn row data into function for _.template
 var RowDataF = function (fun_row_data) {
     this.f_row_data = fun_row_data;
     return this
 };
 
-//TODO here is an example of a for-each in Java that could be used to do the one-two-three in a single routine
-//var list = "<% _.each(people, function(name) { %> <li><%= name %></li> <% }); %>";
-//_.template(list, {people: ['moe', 'curly', 'larry']});
-//=> "<li>moe</li><li>curly</li><li>larry</li>"
-
+// these are the template bits for building pciture row and text blocks
 text_html = '<div class="textrow"><div><%= f_row_data %></div></div>';
 pic_start = '<div class="picrow"><table><tr>';
 pic_end = '</tr></table></div>';
@@ -100,3 +64,21 @@ var run_subs = function (this_row_data) {
     }
 };
 
+var one_template = function (data_set) {
+    $.get("html/one_img.htm").done(function papa (data) {
+            one_template = _.template(data, RowDataF(data_set));
+        }
+    )
+};
+
+var next_one = function(old_set) {
+    var temp_set = jQuery.extend([], old_set)
+    temp_set[1] = (temp_set[1] + 1) % temp_set[2];
+    return(temp_set);
+};
+
+var prev_one = function(old_set) {
+    var temp_set = jQuery.extend([], old_set)
+    temp_set[1] = (temp_set[1] - 1) % temp_set[2];
+    return(temp_set);
+};
