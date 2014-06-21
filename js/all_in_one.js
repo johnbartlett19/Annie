@@ -25,7 +25,7 @@ var RowDataF = function (fun_row_data) {
     return this
 };
 
-// these are the template bits for building pciture row and text blocks
+// these are the template bits for building picture row and text blocks
 text_html = '<div class="textrow"><div><%= f_row_data %></div></div>';
 pic_start = '<div class="picrow"><table><tr>';
 pic_end = '</tr></table></div>';

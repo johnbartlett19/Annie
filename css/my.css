@@ -1,0 +1,6 @@
+table .table_line {
+    height:20px;
+    line-height:20px;
+    letter-spacing:450px;
+    text-decoration: line-through;
+}
